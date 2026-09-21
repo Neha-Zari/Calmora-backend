@@ -2,8 +2,10 @@ import os, re, json, secrets
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from pathlib import Path
-from gmail import send_email
-
+try:
+    from gmail import send_email
+except ImportError:
+    send_email = None
 import pandas as pd
 from dotenv import load_dotenv
 from flask import Flask, request, jsonify, redirect, make_response
