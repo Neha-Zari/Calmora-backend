@@ -57,11 +57,15 @@ app.config.update(
     JWT_COOKIE_SAMESITE="Lax",
     JWT_COOKIE_CSRF_PROTECT=False,
 )
-CORS(app, supports_credentials=True, origins=os.getenv("FRONTEND_URL", "http://localhost:5173"))
+CORS(
+    app,
+    supports_credentials=True,
+    origins=["https://calmora-frontend.vercel.app"]
+)
 db = SQLAlchemy(app)
 jwt = JWTManager(app)
 
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "https://calmora-frontend.vercel.app")
 APP_NAME = "Anxiety Chatbot"
 RESET_SECRET = os.getenv("RESET_SECRET", app.config["JWT_SECRET_KEY"])
 serializer = URLSafeTimedSerializer(RESET_SECRET)
@@ -461,7 +465,7 @@ else:
 def google_login():
     if not google:
         return jsonify({"message": "Google OAuth is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to .env."}), 503
-    redirect_uri = os.getenv("GOOGLE_REDIRECT_URI", "http://127.0.0.1:5000/api/auth/google/callback")
+    redirect_uri = os.getenv("GOOGLE_REDIRECT_URI", "https://calmora-backend.vercel.app/api/auth/google/callback")
     return google.authorize_redirect(redirect_uri)
 
 @app.get("/api/auth/google/callback")
