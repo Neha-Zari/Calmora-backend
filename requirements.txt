@@ -14,3 +14,7 @@ APScheduler==3.11.0
 pywebpush==2.0.1
 cryptography==45.0.7
 gunicorn==23.0.0
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-api-python-client
