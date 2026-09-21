@@ -39,7 +39,13 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_FILE = BASE_DIR / "final_expanded.xlsx"
-DB_FILE = BASE_DIR / "app.db"
+
+# Vercel serverless functions cannot reliably write to the project directory.
+# Use temporary storage on Vercel; keep the local database when running locally.
+if os.getenv("VERCEL"):
+    DB_FILE = Path("/tmp/app.db")
+else:
+    DB_FILE = BASE_DIR / "app.db"
 
 app = Flask(__name__)
 app.config.update(
@@ -706,10 +712,19 @@ def reminder_job():
             add_notification(r.user_id, "Exercise reminder", r.message, "reminder")
             send_push(r.user_id, "Exercise reminder", r.message)
 
+# Vercel runs serverless functions, so a persistent background scheduler
+# must not be started there. Reminders remain available for local execution.
 scheduler = None
-if BackgroundScheduler:
+
+if BackgroundScheduler and not os.getenv("VERCEL"):
     scheduler = BackgroundScheduler()
-    scheduler.add_job(reminder_job, "interval", minutes=1, id="exercise-reminders", replace_existing=True)
+    scheduler.add_job(
+        reminder_job,
+        "interval",
+        minutes=1,
+        id="exercise-reminders",
+        replace_existing=True
+    )
     scheduler.start()
 
 # ------------------------- Health -------------------------
